@@ -30,15 +30,15 @@ function clearErrorMessages() {
 function validateForm() {
   clearErrorMessages();
   let isValid = true;
-  
+
   const message = document.getElementById("new_recommendation").value.trim();
-  
+
   if (message === "") {
     document.getElementById("message-error").textContent = "Message is required";
     document.getElementById("new_recommendation").classList.add("input-error");
     isValid = false;
   }
-  
+
   return isValid;
 }
 
@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   // Clear error messages on input
-  document.getElementById("new_recommendation").addEventListener("input", function() {
+  document.getElementById("new_recommendation").addEventListener("input", function () {
     this.classList.remove("input-error");
     document.getElementById("message-error").textContent = "";
   });
@@ -115,27 +115,27 @@ function addRecommendation() {
   if (!validateForm()) {
     return;
   }
-  
+
   const name = document.getElementById("name").value.trim();
   const message = document.getElementById("new_recommendation").value.trim();
-  
+
   const recommendationObj = {
     name: name,
     message: message,
     timestamp: new Date().toISOString()
   };
-  
+
   console.log("New recommendation added");
   showPopup(true);
-  
+
   // Display the recommendation
   displayRecommendation(recommendationObj);
-  
+
   // Save to local storage
   const savedRecommendations = loadRecommendationsFromStorage();
   savedRecommendations.push(recommendationObj);
   saveRecommendationsToStorage(savedRecommendations);
-  
+
   // Reset form
   document.getElementById("name").value = "";
   document.getElementById("new_recommendation").value = "";
