@@ -1,5 +1,61 @@
+// Local Storage Management for Recommendations
+const RECOMMENDATIONS_STORAGE_KEY = 'portfolio_recommendations';
+
+function loadRecommendationsFromStorage() {
+  const stored = localStorage.getItem(RECOMMENDATIONS_STORAGE_KEY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+function saveRecommendationsToStorage(recommendations) {
+  localStorage.setItem(RECOMMENDATIONS_STORAGE_KEY, JSON.stringify(recommendations));
+}
+
+function displayRecommendation(recommendation) {
+  var element = document.createElement("div");
+  element.setAttribute("class", "recommendation");
+  var nameHTML = recommendation.name ? "<div class='recommendation-author'>— " + recommendation.name + "</div>" : "";
+  element.innerHTML = "<span>&#8220;</span>" + recommendation.message + "<span>&#8221;</span>" + nameHTML;
+  document.getElementById("all_recommendations").appendChild(element);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function clearErrorMessages() {
+  document.getElementById("message-error").textContent = "";
+  document.getElementById("new_recommendation").classList.remove("input-error");
+}
+
+function validateForm() {
+  clearErrorMessages();
+  let isValid = true;
+  
+  const message = document.getElementById("new_recommendation").value.trim();
+  
+  if (message === "") {
+    document.getElementById("message-error").textContent = "Message is required";
+    document.getElementById("new_recommendation").classList.add("input-error");
+    isValid = false;
+  }
+  
+  return isValid;
+}
+
 // Navigation functionality
 document.addEventListener('DOMContentLoaded', function () {
+  // Load and display saved recommendations from storage
+  const savedRecommendations = loadRecommendationsFromStorage();
+  savedRecommendations.forEach(rec => {
+    displayRecommendation(rec);
+  });
+
+  // Clear error messages on input
+  document.getElementById("new_recommendation").addEventListener("input", function() {
+    this.classList.remove("input-error");
+    document.getElementById("message-error").textContent = "";
+  });
+
   // Get all navigation links
   const navLinks = document.querySelectorAll('.topmenu');
 
@@ -56,23 +112,34 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function addRecommendation() {
-  // Get the message of the new recommendation
-  let recommendation = document.getElementById("new_recommendation");
-  // If the user has left a recommendation, display a pop-up
-  if (recommendation.value != null && recommendation.value.trim() != "") {
-    console.log("New recommendation added");
-    //Call showPopup here
-    showPopup(true);
-    // Create a new 'recommendation' element and set it's value to the user's message
-    var element = document.createElement("div");
-    element.setAttribute("class", "recommendation");
-    element.innerHTML = "\<span\>&#8220;\</span\>" + recommendation.value + "\<span\>&#8221;\</span\>";
-    // Add this element to the end of the list of recommendations
-    document.getElementById("all_recommendations").appendChild(element);
-
-    // Reset the value of the textarea
-    recommendation.value = "";
+  if (!validateForm()) {
+    return;
   }
+  
+  const name = document.getElementById("name").value.trim();
+  const message = document.getElementById("new_recommendation").value.trim();
+  
+  const recommendationObj = {
+    name: name,
+    message: message,
+    timestamp: new Date().toISOString()
+  };
+  
+  console.log("New recommendation added");
+  showPopup(true);
+  
+  // Display the recommendation
+  displayRecommendation(recommendationObj);
+  
+  // Save to local storage
+  const savedRecommendations = loadRecommendationsFromStorage();
+  savedRecommendations.push(recommendationObj);
+  saveRecommendationsToStorage(savedRecommendations);
+  
+  // Reset form
+  document.getElementById("name").value = "";
+  document.getElementById("new_recommendation").value = "";
+  clearErrorMessages();
 }
 
 function showPopup(bool) {
