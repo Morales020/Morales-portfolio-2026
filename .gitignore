@@ -51,6 +51,3 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
-
-# Firebase runtime config (contains secrets — never commit)
-firebase-config.js
